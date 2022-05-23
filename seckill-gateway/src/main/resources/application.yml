@@ -33,10 +33,18 @@ spring:
         #seninel定义拦截的限流接口
         url-patterns: /**
 
+    gateway:
+      routes:
+        - id: seckill_service_route
+          uri: http://localhost:8090 #目标服务器
+          predicates:
+             #当请求的路径为/api/skill开头的时，转发到http://localhost:8090服务器上
+            - Path=/api/skill/**
+
 management:
   endpoints:
     web:
       exposure:
         include:*:
 server:
-  port: 88
+  port: 8010
