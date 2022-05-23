@@ -1,20 +1,42 @@
 spring:
+  application:
+    name: seckill-gateway
   cloud:
-    gateway:
-      routes:
-        - id: test_route
-          uri: https://www.baidu.com
-          predicates:
-            - Query=url,baidu
-        - id: qq_route
-          uri: https://www.qq.com
-          predicates:
-            - Query=url,qq
+    nacos:
+      # 注册中心
+      discovery:
+        server-addr: 127.0.0.1:8848
+      # 配置中心
+      config:
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        file-extension: yaml
+    sentinel:
+      # sentinel开关
+      enabled: true
+      # 取消控制台懒加载
+      eager: true
+      # Sentinel控制台地址
+      transport:
+        dashboard: localhost:8888
+      datasource:
+        # 网关限流规则，gw-flow为key，随便定义
+        flow:
+          nacos:
+            server-addr: 127.0.0.1:8848
+            # 流控规则配置文件名：gulimall-seckill--flow-rules
+            dataId: gulimall-seckill-flow-rules
+            groupId: SENTINEL_GROUP
+            data-type: json
+            rule-type: gw-flow
 
-#这个路由规则，一定要放置到最后，否则会优先进行Host匹配，导致其他路由规则失效。
-#     gulimall.com下的所有请求都通过nginx转给product服务
-        - id: gulimall_host_route
-          uri: lb://gulimall-product
-          predicates:
-            - Host=gulimall.com,item.gulimall.com
+      filter:
+        #seninel定义拦截的限流接口
+        url-patterns: /**
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include:*:
+server:
+  port: 88
